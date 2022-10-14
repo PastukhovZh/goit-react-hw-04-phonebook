@@ -1,95 +1,82 @@
-import { Component } from "react"
+import { useEffect, useState } from "react"
 import { nanoid } from "nanoid"
 import { ContactList } from "./ContactList/ContactList"
 import { ContactForm } from "./ContactForm/ContactForm"
 import { Filter } from "./Filter/Filter"
 import { Wrap } from "./App.styled"
   
-export class App extends Component {
-  state = {
-    contacts: [
-      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-    ],
-    filter: '',
-        showModal: false,
 
-  }
-  
-  componentDidMount() {
+export const App = () => {
+  const [contacts, setContacts] = useState(() => {
     const contacts = localStorage.getItem('contacts');
-    const parsedContacts = JSON.parse(contacts);
-    if (parsedContacts) {
-      this.setState({ contacts: parsedContacts });
+    if (contacts) {
+      return JSON.parse(contacts);
     }
-  }
- componentDidUpdate(_, prevState) {
-    const nextContacts = this.state.contacts;
-    const prevContacts = prevState.contacts;
-
-    if (nextContacts !== prevContacts) {
-      localStorage.setItem('contacts', JSON.stringify(nextContacts));
-    }
-
-    if (nextContacts.length > prevContacts.length && prevContacts.length !== 0) {
-      this.toggleModal();
-    }
-  }
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal,
-    }));
-  };
-
-  changeFilter = (e) => {
-    this.setState({ filter: e.currentTarget.value });
-  }
-  getVisibleFriends = () => {
-    const { filter, contacts } = this.state
-    const normalizedFilter = filter.toLocaleLowerCase()
+    return [];
+  });
+  const [filter, setFilter] = useState('');
+  
+    useEffect(() => {
     
-    return contacts.filter(contact => contact.name.toLowerCase().includes(normalizedFilter))
+localStorage.setItem('contacts', JSON.stringify(contacts));
+console.log(`Я изменился`)
+  }, [contacts])
+
+  const addFriend = ({ name, number }) => {
+   const contact = {
+    id: nanoid(),
+    name,
+    number,
+    }
+    if (contacts.length === 0) {
+      setContacts([contact])
+      
+    } else{
+    
+    const isContact = contacts.find(friend => friend.name.toLowerCase())
+    
+    if (isContact.name.toLowerCase() !== contact.name.toLowerCase()) {
+      
+      setContacts([contact, ...contacts])
+    } else {
+      alert(`${contact.name} is already in contacts.`)
+    }
+    }
   }
   
-  addFreind = ({name, number}) => {    
-    const { contacts } = this.state
-    const contact = {
-      id: nanoid(),
-      name,
-      number,
-    }  
-    contacts.find(friend => friend.name.toLowerCase() ===   contact.name.toLowerCase())
-      ? alert(`${contact.name} is already in contacts.`)
-      :this.setState(({ contacts }) => ({
-      contacts:[contact, ...contacts]
-    }))
-
-  }
-  deleteFriend = friendId => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== friendId)
-    }))
+  const changeFilter = (e) => {
+  setFilter(e.currentTarget.value)
   }
 
-  render() {
-    return <Wrap>
+  const getVisibleFriends = () => {
+  const normalizedFilter = filter.toLowerCase()
+    return contacts.filter(contact => contact.name.toLowerCase().includes(normalizedFilter))
+;}
+
+  const deleteFriend = (friendId) => {
+
+    setContacts(contacts.filter(friend=> friend.id!== friendId))
+
+return
+  }
+
+
+  return (
+    <Wrap>
       <div>
         <h1>Phonebook</h1>
-        <ContactForm onSubmit={ this.addFreind}/>
+      <ContactForm onSubmit={addFriend} />
+      
         </div>
       <div>
         <h2>Contacts</h2>
         <Filter
-          value={this.state.filter}
-          onChange={this.changeFilter} />
+          value={filter}
+          onChange={changeFilter} />
         <ContactList
-          contacts={this.getVisibleFriends()}
-          onDelete={this.deleteFriend}
+          contacts={getVisibleFriends()}
+          onDelete={deleteFriend}
         />
-        
       </div>
-      </Wrap>
-  }
-};
+      </Wrap>)
+}
