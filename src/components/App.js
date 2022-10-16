@@ -34,12 +34,16 @@ export const App = () => {
     
     const isContact = contacts.find(friend => friend.name.toLowerCase())
     
-    if (isContact.name.toLowerCase() !== contact.name.toLowerCase()) {
+    if (isContact.name.toLowerCase() === contact.name.toLowerCase()) {
+      return alert(`${contact.name} is already in contacts.`)
       
-      setContacts([contact, ...contacts])
     } else {
-      alert(`${contact.name} is already in contacts.`)
+      // setContacts([contact, ...contacts])
+contacts.find(friend => friend.name.toLowerCase() ===   contact.name.toLowerCase())
+      ? alert(`${contact.name} is already in contacts.`)
+      :setContacts([contact, ...contacts])
     }
+      
     }
   }
   
