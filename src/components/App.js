@@ -18,8 +18,7 @@ export const App = () => {
   
     useEffect(() => {
     
-localStorage.setItem('contacts', JSON.stringify(contacts));
-console.log(`Я изменился`)
+    localStorage.setItem('contacts', JSON.stringify(contacts));
   }, [contacts])
 
   const addFriend = ({ name, number }) => {
